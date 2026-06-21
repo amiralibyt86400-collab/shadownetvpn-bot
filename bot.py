@@ -2,7 +2,7 @@ import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = os.environ.get("8550413186:AAHCJcFJbyZL4cI8CnXQbOnaYVJMj93G_qw")
+TOKEN = os.environ.get("8550413186:AAEM5QgWc-MDDUMC7B9pj0bEpeao3uI05xI")
 CHANNEL_ID = "@Shadownet_plus"
 CARD_NUMBER = "5859471124157979"
 CRYPTO_WALLET = "TUeJitgJQrE72vffctcoz4LWhZ9XW2TyNz"
