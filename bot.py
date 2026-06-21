@@ -2,7 +2,8 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
-TOKEN = "8550413186:AAHCJcFJbyZL4cI8CnXQbOnaYVJMj93G_qw"
+import os
+TOKEN = os.environ.get("8550413186:AAHCJcFJbyZL4cI8CnXQbOnaYVJMj93G_qw")
 ADMIN_ID = 8358016499
 CHANNEL_ID = "@Shadownet_plus"
 CARD_NUMBER = "5859471124157979"
