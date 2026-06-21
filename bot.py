@@ -1,7 +1,6 @@
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
-
 import os
 TOKEN = os.environ.get("8550413186:AAHCJcFJbyZL4cI8CnXQbOnaYVJMj93G_qw")
 ADMIN_ID = 8358016499
@@ -9,7 +8,6 @@ CHANNEL_ID = "@Shadownet_plus"
 CARD_NUMBER = "5859471124157979"
 CRYPTO_WALLET = "TUeJitgJQrE72vffctcoz4LWhZ9XW2TyNz"
 SUPPORT_USERNAME = "@Shadownet_S"
-
 PLANS = {
     "1month": {
         "name": "یک ماهه",
@@ -45,14 +43,11 @@ PLANS = {
         ]
     }
 }
-
 users = {}
-
 def get_user(user_id):
     if user_id not in users:
         users[user_id] = {"points": 0, "wallet": 0, "referrals": 0, "referred_by": None, "joined": False}
     return users[user_id]
-
 async def check_joined(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     try:
@@ -63,13 +58,11 @@ async def check_joined(update: Update, context: ContextTypes.DEFAULT_TYPE):
       async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user = get_user(user_id)
-
     if context.args and context.args[0].startswith("ref_"):
         referrer_id = int(context.args[0].split("_")[1])
         if referrer_id != user_id and user["referred_by"] is None:
             user["referred_by"] = referrer_id
             get_user(referrer_id)["referrals"] += 1
-
     joined = await check_joined(update, context)
     if not joined:
         keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.replace('@', '')}")],
@@ -80,9 +73,7 @@ async def check_joined(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return
-
     await show_main_menu(update, context)
-
 async def show_main_menu(update, context, edit=False):
     keyboard = [
         [InlineKeyboardButton("🛒 خرید اشتراک", callback_data="buy")],
@@ -96,7 +87,6 @@ async def show_main_menu(update, context, edit=False):
         await update.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
     else:
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -111,7 +101,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await query.answer("هنوز عضو نشدی! اول عضو کانال شو ✅", show_alert=True)
         return
-
     joined = await check_joined(update, context)
     if not joined:
         keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.replace('@', '')}")],
@@ -121,7 +110,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return
-
     if data == "buy":
         keyboard = [
             [InlineKeyboardButton("📅 یک ماهه", callback_data="plan_1month")],
@@ -130,7 +118,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🔙 برگشت", callback_data="back")],
         ]
         await query.edit_message_text("📦 نوع اشتراک رو انتخاب کن:", reply_markup=InlineKeyboardMarkup(keyboard))
-
     elif data.startswith("plan_"):
         plan_key = data[5:]
         plan = PLANS[plan_key]
@@ -142,14 +129,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )])
         keyboard.append([InlineKeyboardButton("🔙 برگشت", callback_data="buy")])
         await query.edit_message_text(f"📋 پلن {plan['name']} رو انتخاب کن:", reply_markup=InlineKeyboardMarkup(keyboard))
-
     elif data.startswith("order_"):
         parts = data.split("_")
         idx = int(parts[-1])
         plan_key = "_".join(parts[1:-1])
         plan = PLANS[plan_key]
         opt = plan["options"][idx]
-
         discount = 0
         points = user["points"]
         if points >= 100:
@@ -158,9 +143,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             discount = 10
         elif points >= 30:
             discount = 5
-
         final_price = opt["price"] * (100 - discount) // 100
-
         text = (
             f"🛒 *سفارش شما:*\n"
             f"📦 پلن: {plan['name']} - {opt['name']}\n"
@@ -183,7 +166,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 برگشت", callback_data="buy")]])
         )
-
     elif data.startswith("pay_crypto_"):
         await query.edit_message_text(
             f"₿ *پرداخت کریپتو (TRC20):*\n\n"
@@ -192,7 +174,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 برگشت", callback_data="buy")]])
         )
-
     elif data == "free_test":
         await query.edit_message_text(
             "🎁 *تست رایگان:*\n\n"
@@ -204,7 +185,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ]),
             parse_mode="Markdown"
         )
-
     elif data == "club":
         points = user["points"]
         if points >= 100:
@@ -219,7 +199,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             level = "🔰 عادی"
             discount = "هنوز تخفیف نداری"
-
         await query.edit_message_text(
             f"💎 *باشگاه مشتریان ShadowNet:*\n\n"
             f"امتیاز شما: {points} ⭐\n"
@@ -229,7 +208,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 برگشت", callback_data="back")]]),
         )
-
     elif data == "referral":
         ref_link = f"https://t.me/shadownetvpn_bot?start=ref_{user_id}"
         referrals = user["referrals"]
@@ -243,7 +221,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 برگشت", callback_data="back")]]),
         )
-
     elif data == "support":
         await query.edit_message_text(
             "🆘 *پشتیبانی ShadowNet:*\n\n"
@@ -254,18 +231,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ]),
             parse_mode="Markdown"
         )
-
     elif data == "back":
         await show_main_menu(query, context, edit=True)
-
 def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     print("✅ ربات ShadowNet شروع کرد!")
     app.run_polling()
-
 if __name__ == "__main__":
     main()
-
-
